@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { Box, Button, Paper, Stack, Typography } from "@mui/material"
 import {
-  Account,
   SubmitTransactionRequest,
   TariPermissions,
   TariUniverseProvider,
@@ -29,6 +28,14 @@ const FEE_AMOUNT = "2000"
 const INIT_SUPPLY = "100000"
 const FAUCET_TEMPLATE_ADDRESS = "e9afe3eda226a3c5e43ac9bd82adeea08677e562d3d286a3983277df1b9256ee"
 
+const FIRST_TOKEN_RESOURCE_ADDRESS = "resource_e71c7c68bd239f3c4938d98b408e680259369ef415165801db0ef56b"
+const FIRST_TOKEN_COMPONENT_ADDRESS = "component_e71c7c68bd239f3c4938d98b408e680259369ef4abe881c6f48043fe"
+const FIRST_TOKEN_SYMBOL = "A"
+
+const SECOND_TOKEN_RESOURCE_ADDRESS = "resource_a9af4f7fd8233de7e03e771b70bbbcd66f2e9a0a485135ef64d5a68a"
+const SECOND_TOKEN_COMPONENT_ADDRESS = "component_a9af4f7fd8233de7e03e771b70bbbcd66f2e9a0aabe881c6f48043fe"
+const SECOND_TOKEN_SYMBOL = "B"
+
 type InitTokensResponse = {
   firstToken: Token
   secondToken: Token
@@ -41,7 +48,26 @@ type Substate = {
 
 type Token = {
   substate: Substate
+  symbol: string
   balance: number
+}
+
+const defaultFirstToken: Token = {
+  substate: {
+    resource: FIRST_TOKEN_RESOURCE_ADDRESS,
+    component: FIRST_TOKEN_COMPONENT_ADDRESS,
+  },
+  symbol: FIRST_TOKEN_SYMBOL,
+  balance: 0,
+}
+
+const defaultSecondToken: Token = {
+  substate: {
+    resource: SECOND_TOKEN_RESOURCE_ADDRESS,
+    component: SECOND_TOKEN_COMPONENT_ADDRESS,
+  },
+  symbol: SECOND_TOKEN_SYMBOL,
+  balance: 0,
 }
 
 async function initFaucets(
@@ -95,6 +121,7 @@ async function initFaucets(
         resource: upSubstates[2][0].Resource,
         component: upSubstates[4][0].Component,
       },
+      symbol: FIRST_TOKEN_SYMBOL,
       balance: 0,
     }
     const secondToken: Token = {
@@ -102,6 +129,7 @@ async function initFaucets(
         resource: upSubstates[5][0].Resource,
         component: upSubstates[7][0].Component,
       },
+      symbol: SECOND_TOKEN_SYMBOL,
       balance: 0,
     }
 
@@ -116,19 +144,15 @@ async function initFaucets(
 
 function App() {
   const provider = useRef<TariUniverseProvider>(new TariUniverseProvider(params))
-  const [account, setAccount] = useState<Account>()
-  const [firstToken, setFirstToken] = useState<Token | undefined>(undefined)
-  const [secondToken, setSecondToken] = useState<Token | undefined>(undefined)
+  const [firstToken, setFirstToken] = useState<Token>(defaultFirstToken)
+  const [secondToken, setSecondToken] = useState<Token>(defaultSecondToken)
 
   useEffect(() => {
-    const init = async () => {
-      const account = await provider.current.getAccount()
-      setAccount(account)
-    }
-    init()
+    refreshBalances()
   }, [])
 
   const setup = async () => {
+    const account = await getAccount()
     if (!account) throw new Error("Account not initialized")
 
     const tokens = await initFaucets(provider.current, account.address)
@@ -140,7 +164,6 @@ function App() {
   }
 
   const takeCoins = async () => {
-    if (!account) throw new Error("Account not initialized")
     if (!firstToken || !secondToken) throw new Error("Tokens not initialized")
 
     const firstTokenComponent = firstToken.substate.component
@@ -153,7 +176,7 @@ function App() {
   }
 
   const refreshBalances = useCallback(async () => {
-    if (!account) throw new Error("Account not initialized")
+    const account = await getAccount()
     if (!firstToken || !secondToken) throw new Error("Tokens not initialized")
 
     const accountBalances = await provider.current.getAccountBalances(account.address)
@@ -168,7 +191,13 @@ function App() {
 
     setFirstToken({ ...firstToken, balance: firstTokenBalance })
     setSecondToken({ ...secondToken, balance: secondTokenBalance })
-  }, [account, firstToken, secondToken])
+  }, [firstToken, secondToken])
+
+  const getAccount = useCallback(async () => {
+    const account = await provider.current.getAccount()
+    if (!account) throw new Error("Account not initialized")
+    return account
+  }, [provider])
 
   return (
     <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" width="100%">
@@ -191,6 +220,7 @@ function App() {
           <Typography variant="h6">First Token</Typography>
           <Typography>Resource: {firstToken ? firstToken.substate.resource : ""}</Typography>
           <Typography>Component: {firstToken ? firstToken.substate.component : ""}</Typography>
+          <Typography>Symbol: {firstToken ? firstToken.symbol : ""}</Typography>
           <Typography>Balance: {firstToken ? firstToken.balance : 0}</Typography>
         </Paper>
 
@@ -198,6 +228,7 @@ function App() {
           <Typography variant="h6">Second Token</Typography>
           <Typography>Resource: {secondToken ? secondToken.substate.resource : ""}</Typography>
           <Typography>Component: {secondToken ? secondToken.substate.component : ""}</Typography>
+          <Typography>Symbol: {secondToken ? secondToken.symbol : ""}</Typography>
           <Typography>Balance: {secondToken ? secondToken.balance : 0}</Typography>
         </Paper>
       </Box>

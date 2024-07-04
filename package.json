@@ -1,14 +1,14 @@
 {
-  "name": "tapplet-example",
-  "version": "0.0.3",
+  "name": "faucet-tapplet",
+  "version": "0.0.1",
   "type": "module",
-  "description": "Tapplet example",
+  "description": "Faucet tapplet",
   "main": "dist/index.html",
   "author": "",
   "license": "ISC",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/MCozhusheck/tapplet-example.git"
+    "url": "git+https://github.com/MCozhusheck/faucet-tapplet.git"
   },
   "scripts": {
     "dev": "vite",
@@ -40,5 +40,9 @@
     "@rollup/plugin-node-resolve": "^15.2.3",
     "rollup-plugin-typescript2": "^0.34.1",
     "@types/node": "^20.12.6"
-  }
+  },
+  "files": [
+    "./dist",
+    "./README.md"
+  ]
 }
