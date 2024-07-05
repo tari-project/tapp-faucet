@@ -1,0 +1,42 @@
+{
+  "packageName": "faucet-tapplet",
+  "version": "0.0.1",
+  "displayName": "Faucet tapplet",
+  "status": "TEST",
+  "category": "TEST",
+  "author": {
+    "name": "MCozhusheck",
+    "website": "https://api.github.com/users/MCozhusheck/repos"
+  },
+  "about": {
+    "summary": "Faucet testing",
+    "description": "This is the simplest example of a faucet tapplet for testing purposes."
+  },
+  "design": {
+    "logoPath": "src/images/logo.svg",
+    "backgroundPath": "src/images/background.svg"
+  },
+  "repository": {
+    "type": "git",
+    "url": "",
+    "codeowners": [
+      "@MCozhusheck"
+    ]
+  },
+  "source": {
+    "location": {
+      "npm": {
+        "packageName": "faucet-tapplet",
+        "registry": "https://registry.npmjs.org/faucet-tapplet",
+        "distTarball": "https://registry.npmjs.org/faucet-tapplet/-/faucet-tapplet-0.0.1.tgz",
+        "integrity": "sha512-lVMTjcpCz0ENSkqn0dbbmJ6E2PbUoIpvjDjj0tVA7zN4QjWCBZIcok55NuCiJQaAg5BqJzPqsvhhEEP8TIQ0Fw=="
+      }
+    }
+  },
+  "supportedChain": [
+    "MAINNET",
+    "STAGENET",
+    "NEXTNET"
+  ],
+  "manifestVersion": "0.1.0"
+}
