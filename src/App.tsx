@@ -45,21 +45,24 @@ function App() {
   }
 
   const refreshBalances = useCallback(async () => {
-    const account = await getAccount()
-    if (!firstToken || !secondToken) throw new Error("Tokens not initialized")
+    try {
+      const account = await getAccount()
+      if (!firstToken || !secondToken) throw new Error("Tokens not initialized")
 
-    const accountBalances = await provider.current.getAccountBalances(account.address)
-    const firstTokenBalance =
-      accountBalances.balances.find(
-        (balance) => balance.resource_address.toLowerCase() === firstToken?.substate.resource.toLowerCase()
-      )?.balance || 0
-    const secondTokenBalance =
-      accountBalances.balances.find(
-        (balance) => balance.resource_address.toLowerCase() === secondToken?.substate.resource.toLowerCase()
-      )?.balance || 0
-
-    setFirstToken({ ...firstToken, balance: firstTokenBalance })
-    setSecondToken({ ...secondToken, balance: secondTokenBalance })
+      const accountBalances = await provider.current.getAccountBalances(account.address)
+      const firstTokenBalance =
+        accountBalances.balances.find(
+          (balance) => balance.resource_address.toLowerCase() === firstToken?.substate.resource.toLowerCase()
+        )?.balance || 0
+      const secondTokenBalance =
+        accountBalances.balances.find(
+          (balance) => balance.resource_address.toLowerCase() === secondToken?.substate.resource.toLowerCase()
+        )?.balance || 0
+      setFirstToken({ ...firstToken, balance: firstTokenBalance })
+      setSecondToken({ ...secondToken, balance: secondTokenBalance })
+    } catch (e) {
+      console.error(e)
+    }
   }, [firstToken, secondToken])
 
   const getAccount = useCallback(async () => {

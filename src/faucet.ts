@@ -26,33 +26,37 @@ export async function createFaucet(
 }
 
 export async function takeFreeCoins(provider: TariProvider, faucet_component: string) {
-  const account = await provider.getAccount()
-  const instructions = [
-    {
-      CallMethod: {
-        component_address: faucet_component,
-        method: "take_free_coins",
-        args: [],
+  try {
+    const account = await provider.getAccount()
+    const instructions = [
+      {
+        CallMethod: {
+          component_address: faucet_component,
+          method: "take_free_coins",
+          args: [],
+        },
       },
-    },
-    {
-      PutLastInstructionOutputOnWorkspace: {
-        key: [0],
+      {
+        PutLastInstructionOutputOnWorkspace: {
+          key: [0],
+        },
       },
-    },
-    {
-      CallMethod: {
-        component_address: account.address,
-        method: "deposit",
-        args: [{ Workspace: [0] }],
+      {
+        CallMethod: {
+          component_address: account.address,
+          method: "deposit",
+          args: [{ Workspace: [0] }],
+        },
       },
-    },
-  ]
-  const required_substates = [{ substate_id: account.address }, { substate_id: faucet_component }]
+    ]
+    const required_substates = [{ substate_id: account.address }, { substate_id: faucet_component }]
 
-  const result = await wallet.submitAndWaitForTransaction(provider, account, instructions, required_substates)
+    const result = await wallet.submitAndWaitForTransaction(provider, account, instructions, required_substates)
 
-  return result
+    return result
+  } catch (error) {
+    console.error(error)
+  }
 }
 
 export const FEE_AMOUNT = "2000"
