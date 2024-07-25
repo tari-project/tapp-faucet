@@ -2,27 +2,34 @@ import { SubmitTransactionRequest, TariProvider } from "@tariproject/tarijs"
 import * as wallet from "./wallet.ts"
 import { InitTokensResponse, Token } from "./types.ts"
 
-export async function createFaucet(
-  provider: TariProvider,
-  faucet_template: string,
-  initial_supply: number,
-  symbol: string
-) {
-  const account = await provider.getAccount()
-  const initial_supply_arg = `Amount(${initial_supply})`
-  const instructions = [
-    {
-      CallFunction: {
-        template_address: faucet_template,
-        function: "mint_with_symbol",
-        args: [initial_supply_arg, symbol],
-      },
-    },
-  ]
-  const required_substates = [{ substate_id: account.address }]
+export const FEE_AMOUNT = "2000"
+export const INIT_SUPPLY = "100000"
+export const FAUCET_TEMPLATE_ADDRESS = "c465c2858441d5a46b9d14b924455eb846ed3dd4bea303ad0866db64b3b3b152"
 
-  const result = await wallet.submitAndWaitForTransaction(provider, account, instructions, required_substates)
-  return result
+export const FIRST_TOKEN_RESOURCE_ADDRESS = "resource_e90768b30d3e97d6e80a794bcb141ca786e5501af32e0ad106ef47c1"
+export const FIRST_TOKEN_COMPONENT_ADDRESS = "component_e90768b30d3e97d6e80a794bcb141ca786e5501ac6353f6797bc3029"
+export const FIRST_TOKEN_SYMBOL = "A"
+
+export const SECOND_TOKEN_RESOURCE_ADDRESS = "resource_70229469c18f7f70193582d0f28033b7a044171c9ead5d487abe7c32"
+export const SECOND_TOKEN_COMPONENT_ADDRESS = "component_70229469c18f7f70193582d0f28033b7a044171cc6353f6797bc3029"
+export const SECOND_TOKEN_SYMBOL = "B"
+
+export const defaultFirstToken: Token = {
+  substate: {
+    resource: FIRST_TOKEN_RESOURCE_ADDRESS,
+    component: FIRST_TOKEN_COMPONENT_ADDRESS,
+  },
+  symbol: FIRST_TOKEN_SYMBOL,
+  balance: 0,
+}
+
+export const defaultSecondToken: Token = {
+  substate: {
+    resource: SECOND_TOKEN_RESOURCE_ADDRESS,
+    component: SECOND_TOKEN_COMPONENT_ADDRESS,
+  },
+  symbol: SECOND_TOKEN_SYMBOL,
+  balance: 0,
 }
 
 export async function takeFreeCoins(provider: TariProvider, faucet_component: string) {
@@ -59,40 +66,8 @@ export async function takeFreeCoins(provider: TariProvider, faucet_component: st
   }
 }
 
-export const FEE_AMOUNT = "2000"
-export const INIT_SUPPLY = "100000"
-export const FAUCET_TEMPLATE_ADDRESS = "e9afe3eda226a3c5e43ac9bd82adeea08677e562d3d286a3983277df1b9256ee"
-
-export const FIRST_TOKEN_RESOURCE_ADDRESS = "resource_e71c7c68bd239f3c4938d98b408e680259369ef415165801db0ef56b"
-export const FIRST_TOKEN_COMPONENT_ADDRESS = "component_e71c7c68bd239f3c4938d98b408e680259369ef4abe881c6f48043fe"
-export const FIRST_TOKEN_SYMBOL = "A"
-
-export const SECOND_TOKEN_RESOURCE_ADDRESS = "resource_a9af4f7fd8233de7e03e771b70bbbcd66f2e9a0a485135ef64d5a68a"
-export const SECOND_TOKEN_COMPONENT_ADDRESS = "component_a9af4f7fd8233de7e03e771b70bbbcd66f2e9a0aabe881c6f48043fe"
-export const SECOND_TOKEN_SYMBOL = "B"
-
-export const defaultFirstToken: Token = {
-  substate: {
-    resource: FIRST_TOKEN_RESOURCE_ADDRESS,
-    component: FIRST_TOKEN_COMPONENT_ADDRESS,
-  },
-  symbol: FIRST_TOKEN_SYMBOL,
-  balance: 0,
-}
-
-export const defaultSecondToken: Token = {
-  substate: {
-    resource: SECOND_TOKEN_RESOURCE_ADDRESS,
-    component: SECOND_TOKEN_COMPONENT_ADDRESS,
-  },
-  symbol: SECOND_TOKEN_SYMBOL,
-  balance: 0,
-}
-
-export async function initFaucets(
-  provider: TariProvider,
-  accountAddress: string
-): Promise<InitTokensResponse | undefined> {
+export async function initFaucets(provider: TariProvider): Promise<InitTokensResponse | undefined> {
+  const account = await provider.getAccount()
   const req: SubmitTransactionRequest = {
     account_id: 1,
     instructions: [
@@ -100,14 +75,14 @@ export async function initFaucets(
         CallFunction: {
           template_address: FAUCET_TEMPLATE_ADDRESS,
           function: "mint_with_symbol",
-          args: [INIT_SUPPLY, "A"],
+          args: [INIT_SUPPLY, FIRST_TOKEN_SYMBOL],
         },
       },
       {
         CallFunction: {
           template_address: FAUCET_TEMPLATE_ADDRESS,
           function: "mint_with_symbol",
-          args: [INIT_SUPPLY, "B"],
+          args: [INIT_SUPPLY, SECOND_TOKEN_SYMBOL],
         },
       },
     ],
@@ -117,7 +92,7 @@ export async function initFaucets(
     fee_instructions: [
       {
         CallMethod: {
-          component_address: accountAddress,
+          component_address: account.address,
           method: "pay_fee",
           args: [FEE_AMOUNT],
         },

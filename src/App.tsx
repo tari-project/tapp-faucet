@@ -7,7 +7,7 @@ import {
   permissions as walletPermissions,
 } from "@tariproject/tarijs"
 import { Token } from "./types"
-import { defaultFirstToken, defaultSecondToken, takeFreeCoins } from "./faucet"
+import { defaultFirstToken, defaultSecondToken, initFaucets, takeFreeCoins } from "./faucet"
 
 const { TariPermissionAccountInfo, TariPermissionKeyList, TariPermissionSubstatesRead, TariPermissionTransactionSend } =
   walletPermissions
@@ -31,6 +31,13 @@ function App() {
   useEffect(() => {
     refreshBalances()
   }, [])
+
+  const deployFaucet = async () => {
+    if (!firstToken || !secondToken) throw new Error("Tokens not initialized")
+
+    const result = await initFaucets(provider.current)
+    console.log(result)
+  }
 
   const takeCoins = async () => {
     if (!firstToken || !secondToken) throw new Error("Tokens not initialized")
@@ -75,6 +82,9 @@ function App() {
     <Box display="flex" flexDirection="column" justifyContent="center" alignItems="center" width="100%">
       <Paper variant="outlined" elevation={0} sx={{ padding: 3, borderRadius: 4, marginBottom: 3, width: "20%" }}>
         <Stack direction="column" spacing={2}>
+          {/* <Button variant="contained" sx={{ width: "100%" }} onClick={deployFaucet}>
+            Deploy Faucet
+          </Button> */}
           <Button variant="contained" sx={{ width: "100%" }} onClick={takeCoins}>
             Take free coins
           </Button>
