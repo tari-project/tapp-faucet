@@ -1,0 +1,4 @@
+# CI/CD-related files require a review by the devops team
+.github/**/* @tari-project/devops
+scripts/**/* @tari-project/devops
+CODEOWNERS @tari-project/devops
